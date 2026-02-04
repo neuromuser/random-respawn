@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "random-respawn",
+  "version": "${version}",
+  "name": "Random Respawn",
+  "description": "Server-side random respawn mod.",
+  "authors": [
+    "Neuromuser"
+  ],
+  "contact": {
+    "sources": "https://github.com/neuromuser/random-respawn"
+  },
+  "license": "MIT",
+  "icon": "assets/random-respawn/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.neuromuser.randomrespawn.RandomRespawn"
+    ]
+  },
+  "mixins": [],
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "~1.20.1",
+    "java": ">=17",
+    "fabric-api": "*"
+  }
+}
