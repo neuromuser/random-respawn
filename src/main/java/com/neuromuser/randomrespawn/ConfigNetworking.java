@@ -1,21 +1,36 @@
 package com.neuromuser.randomrespawn;
 
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
 public class ConfigNetworking {
-    private static final Identifier SYNC_ID = new Identifier("random-respawn", "config");
+    public record ConfigPayload(String json) implements CustomPayload {
+        public static final CustomPayload.Id<ConfigPayload> ID =
+            new CustomPayload.Id<>(Identifier.of("random-respawn", "config"));
+
+        public static final PacketCodec<RegistryByteBuf, ConfigPayload> CODEC =
+            PacketCodec.of(
+                (value, buf) -> buf.writeString(value.json),
+                buf -> new ConfigPayload(buf.readString())
+            );
+
+        @Override
+        public CustomPayload.Id<? extends CustomPayload> getId() {
+            return ID;
+        }
+    }
 
     public static void init() {
-        // Server doesn't receive config
+        PayloadTypeRegistry.playS2C().register(ConfigPayload.ID, ConfigPayload.CODEC);
+
     }
 
     public static void sendToClient(ServerPlayerEntity player) {
-        PacketByteBuf buf = PacketByteBufs.create();
-        buf.writeString(ConfigManager.toJson());
-        ServerPlayNetworking.send(player, SYNC_ID, buf);
+        ServerPlayNetworking.send(player, new ConfigPayload(ConfigManager.toJson()));
     }
 }
