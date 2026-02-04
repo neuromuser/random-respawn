@@ -11,12 +11,12 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.tag.BlockTags;
+import net.minecraft.tag.FluidTags;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
@@ -79,7 +79,7 @@ public class RandomRespawn implements ModInitializer {
             ConfigManager.get().playerSettings.put(targetPlayer.getUuidAsString(), enabled);
             ConfigManager.save(configPath);
 
-            context.getSource().sendFeedback(() -> Text.literal("Random respawn for " + targetPlayer.getName().getString() + " is now " + (enabled ? "enabled" : "disabled")), true);
+            context.getSource().sendFeedback(Text.literal("Random respawn for " + targetPlayer.getName().getString() + " is now " + (enabled ? "enabled" : "disabled")), true);
             return 1;
         } catch (Exception e) {
             context.getSource().sendError(Text.literal("Error: " + e.getMessage()));
@@ -91,7 +91,7 @@ public class RandomRespawn implements ModInitializer {
         ConfigManager.get().defaultEnabled = BoolArgumentType.getBool(context, "enabled");
         ConfigManager.save(configPath);
 
-        context.getSource().sendFeedback(() -> Text.literal("Default random respawn is now " + (ConfigManager.get().defaultEnabled ? "enabled" : "disabled")), true);
+        context.getSource().sendFeedback(Text.literal("Default random respawn is now " + (ConfigManager.get().defaultEnabled ? "enabled" : "disabled")), true);
         return 1;
     }
 
@@ -99,13 +99,13 @@ public class RandomRespawn implements ModInitializer {
         ConfigManager.get().respawnRange = IntegerArgumentType.getInteger(context, "distance");
         ConfigManager.save(configPath);
 
-        context.getSource().sendFeedback(() -> Text.literal("Range set to " + ConfigManager.get().respawnRange), true);
+        context.getSource().sendFeedback(Text.literal("Range set to " + ConfigManager.get().respawnRange), true);
         return 1;
     }
 
     private int showInfo(CommandContext<ServerCommandSource> context) {
         Config config = ConfigManager.get();
-        context.getSource().sendFeedback(() -> Text.literal("=== Random Respawn Settings ===\n" + "Default: " + config.defaultEnabled + "\n" + "Range: " + config.respawnRange + "\n" + "Tracked Players: " + config.playerSettings.size()), false);
+        context.getSource().sendFeedback(Text.literal("=== Random Respawn Settings ===\n" + "Default: " + config.defaultEnabled + "\n" + "Range: " + config.respawnRange + "\n" + "Tracked Players: " + config.playerSettings.size()), false);
         return 1;
     }
 
@@ -122,7 +122,7 @@ public class RandomRespawn implements ModInitializer {
     private void tryToTeleport(ServerPlayerEntity player, int iteration) {
         if (iteration > 1000) return;
 
-        ServerWorld world = player.getServerWorld();
+        ServerWorld world = player.getWorld();
         double rx = getRandomCoordinate();
         double rz = getRandomCoordinate();
 
