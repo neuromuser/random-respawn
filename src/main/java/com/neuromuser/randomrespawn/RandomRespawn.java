@@ -10,12 +10,12 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.tag.BlockTags;
+import net.minecraft.tag.FluidTags;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
@@ -85,7 +85,7 @@ public class RandomRespawn implements ModInitializer {
             playerSettings.put(targetPlayer.getUuid(), enabled);
 
             context.getSource().sendFeedback(
-                    () -> Text.literal("Random respawn for " + targetPlayer.getName().getString() +
+                    Text.literal("Random respawn for " + targetPlayer.getName().getString() +
                             " is now " + (enabled ? "enabled" : "disabled")),
                     true
             );
@@ -101,7 +101,7 @@ public class RandomRespawn implements ModInitializer {
         defaultEnabled = BoolArgumentType.getBool(context, "enabled");
 
         context.getSource().sendFeedback(
-                () -> Text.literal("Default random respawn setting is now " +
+            Text.literal("Default random respawn setting is now " +
                         (defaultEnabled ? "enabled" : "disabled") + " for new players"),
                 true
         );
@@ -113,7 +113,7 @@ public class RandomRespawn implements ModInitializer {
         respawnRange = IntegerArgumentType.getInteger(context, "distance");
 
         context.getSource().sendFeedback(
-                () -> Text.literal("Random respawn range set to " + respawnRange + " blocks"),
+                Text.literal("Random respawn range set to " + respawnRange + " blocks"),
                 true
         );
 
@@ -122,7 +122,7 @@ public class RandomRespawn implements ModInitializer {
 
     private int showInfo(CommandContext<ServerCommandSource> context) {
         context.getSource().sendFeedback(
-                () -> Text.literal("=== Random Respawn Settings ===\n" +
+                Text.literal("=== Random Respawn Settings ===\n" +
                         "Default enabled: " + defaultEnabled + "\n" +
                         "Respawn range: " + respawnRange + " blocks\n" +
                         "Players with custom settings: " + playerSettings.size()),
@@ -145,7 +145,7 @@ public class RandomRespawn implements ModInitializer {
     }
 
     private void tryToTeleport(ServerPlayerEntity player, int iteration) {
-        ServerWorld world = player.getServerWorld();
+        ServerWorld world = player.getWorld();
         double x = player.getX();
         double z = player.getZ();
 
