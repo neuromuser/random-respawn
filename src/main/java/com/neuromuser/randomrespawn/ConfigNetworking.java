@@ -10,7 +10,6 @@ public class ConfigNetworking {
     private static final Identifier SYNC_ID = new Identifier("random-respawn", "config");
 
     public static void init() {
-        // Server doesn't receive config
     }
 
     public static void sendToClient(ServerPlayerEntity player) {
