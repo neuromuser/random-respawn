@@ -9,15 +9,9 @@ import java.nio.file.Path;
 public class ConfigManager {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static Config config = new Config();
-    private static Config serverConfig = null;
-    private static boolean hasServerMod = false;
 
     public static Config get() {
-        return hasServerMod && serverConfig != null ? serverConfig : config;
-    }
-
-    public static boolean shouldRunServerLogic() {
-        return hasServerMod;
+        return config;
     }
 
     public static void load(Path path) {
@@ -44,10 +38,5 @@ public class ConfigManager {
 
     public static String toJson() {
         return GSON.toJson(config);
-    }
-
-    public static void receiveServerConfig(String json) {
-        serverConfig = GSON.fromJson(json, Config.class);
-        hasServerMod = true;
     }
 }
