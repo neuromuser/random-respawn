@@ -10,6 +10,8 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import net.minecraft.advancement.Advancement;
+import net.minecraft.advancement.AdvancementProgress;
 import net.minecraft.block.BlockState;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -173,6 +175,27 @@ public class RandomRespawn implements ModInitializer {
                 ConfigNetworking.sendProgress(newPlayer, "randomrespawn.searching", 0);
 
                 ServerWorld world = newPlayer.getServerWorld();
+                world.setTimeOfDay(1000L);
+
+                newPlayer.setExperienceLevel(0);
+                newPlayer.setExperiencePoints(0);
+                newPlayer.addExperience(0);
+                var server = newPlayer.getServer();
+                if (server != null) {
+                    var advancementLoader = server.getAdvancementLoader();
+                    var playerAdvancements = newPlayer.getAdvancementTracker();
+
+                    for (Advancement advancement : advancementLoader.getAdvancements()) {
+                        AdvancementProgress progress = playerAdvancements.getProgress(advancement);
+
+                        if (progress.isAnyObtained()) {
+                            for (String criterion : progress.getObtainedCriteria()) {
+                                playerAdvancements.revokeCriterion(advancement, criterion);
+                            }
+                        }
+                    }
+                }
+
                 world.getServer().execute(() ->
                         findLocationAsync(world, newPlayer.getUuid(), 0)
                 );
