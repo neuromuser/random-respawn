@@ -8,6 +8,7 @@ import net.minecraft.util.Identifier;
 
 public class ConfigNetworking {
     private static final Identifier SYNC_ID = new Identifier("random-respawn", "config");
+    public static final Identifier PROGRESS_ID = new Identifier("random-respawn", "progress");
 
     public static void init() {
     }
@@ -16,5 +17,12 @@ public class ConfigNetworking {
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeString(ConfigManager.toJson());
         ServerPlayNetworking.send(player, SYNC_ID, buf);
+    }
+
+    public static void sendProgress(ServerPlayerEntity player, String key, int progress) {
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeString(key);
+        buf.writeInt(progress);
+        ServerPlayNetworking.send(player, PROGRESS_ID, buf);
     }
 }

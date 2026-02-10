@@ -16,6 +16,9 @@
   "entrypoints": {
     "main": [
       "com.neuromuser.randomrespawn.RandomRespawn"
+    ],
+    "client": [
+      "com.neuromuser.randomrespawn.RandomRespawnClient"
     ]
   },
   "mixins": [],

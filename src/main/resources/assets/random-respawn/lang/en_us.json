@@ -1,0 +1,7 @@
+{
+  "randomrespawn.searching": "Finding the perfect place to respawn...",
+  "randomrespawn.found": "Location found!",
+  "randomrespawn.generating": "Generating chunks... %s%%",
+  "randomrespawn.ready": "Teleporting!",
+  "randomrespawn.please_wait": "Please wait..."
+}
