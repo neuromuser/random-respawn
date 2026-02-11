@@ -38,7 +38,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class RandomRespawn implements ModInitializer {
     private static Path configPath;
-    private final Set<UUID> needsRandomRespawn = new HashSet<>();
     private final Map<UUID, Integer> playerRetryCount = new HashMap<>();
     private final Map<UUID, LoadingState> activeLoaders = new ConcurrentHashMap<>();
 
@@ -141,21 +140,6 @@ public class RandomRespawn implements ModInitializer {
             }
         });
 
-        ServerLivingEntityEvents.ALLOW_DEATH.register((entity, damageSource, damageAmount) -> {
-            if (entity instanceof ServerPlayerEntity player) {
-                Config config = ConfigManager.get();
-                boolean enabled = config.playerSettings.getOrDefault(
-                        player.getUuidAsString(),
-                        config.defaultEnabled
-                );
-
-                if (enabled) {
-                    needsRandomRespawn.add(player.getUuid());
-                }
-            }
-            return true;
-        });
-
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             ServerPlayerEntity player = handler.player;
             ConfigNetworking.sendToClient(player);
@@ -170,41 +154,48 @@ public class RandomRespawn implements ModInitializer {
         });
 
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
-            if (!alive && needsRandomRespawn.remove(newPlayer.getUuid())) {
-                makePlayerInvulnerable(newPlayer);
-                ConfigNetworking.sendProgress(newPlayer, "randomrespawn.searching", 0);
+            if (!alive) {
+                Config config = ConfigManager.get();
+                boolean enabled = config.playerSettings.getOrDefault(
+                        newPlayer.getUuidAsString(),
+                        config.defaultEnabled
+                );
 
-                ServerWorld world = newPlayer.getServerWorld();
-                world.setTimeOfDay(1000L);
+                if (enabled) {
+                    makePlayerInvulnerable(newPlayer);
+                    ConfigNetworking.sendProgress(newPlayer, "randomrespawn.searching", 0);
 
-                newPlayer.setExperienceLevel(0);
-                newPlayer.setExperiencePoints(0);
-                newPlayer.addExperience(0);
-                var server = newPlayer.getServer();
-                if (server != null) {
-                    var advancementLoader = server.getAdvancementLoader();
-                    var playerAdvancements = newPlayer.getAdvancementTracker();
+                    ServerWorld world = newPlayer.getServerWorld();
+                    world.setTimeOfDay(1000L);
 
-                    for (Advancement advancement : advancementLoader.getAdvancements()) {
-                        AdvancementProgress progress = playerAdvancements.getProgress(advancement);
+                    newPlayer.setExperienceLevel(0);
+                    newPlayer.setExperiencePoints(0);
+                    newPlayer.addExperience(0);
+                    var server = newPlayer.getServer();
+                    if (server != null) {
+                        var advancementLoader = server.getAdvancementLoader();
+                        var playerAdvancements = newPlayer.getAdvancementTracker();
 
-                        if (progress.isAnyObtained()) {
-                            for (String criterion : progress.getObtainedCriteria()) {
-                                playerAdvancements.revokeCriterion(advancement, criterion);
+                        for (Advancement advancement : advancementLoader.getAdvancements()) {
+                            AdvancementProgress progress = playerAdvancements.getProgress(advancement);
+
+                            if (progress.isAnyObtained()) {
+                                for (String criterion : progress.getObtainedCriteria()) {
+                                    playerAdvancements.revokeCriterion(advancement, criterion);
+                                }
                             }
                         }
                     }
-                }
 
-                world.getServer().execute(() ->
-                        findLocationAsync(world, newPlayer.getUuid(), 0)
-                );
+                    world.getServer().execute(() ->
+                            findLocationAsync(world, newPlayer.getUuid(), 0)
+                    );
+                }
             }
         });
 
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
             UUID uuid = handler.player.getUuid();
-            needsRandomRespawn.remove(uuid);
             playerRetryCount.remove(uuid);
             activeLoaders.remove(uuid);
         });
